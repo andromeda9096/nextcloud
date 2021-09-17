@@ -43,7 +43,7 @@ services:
       MYSQL_DATABASE: web
       NEXTCLOUD_ADMIN_USER: admin
       NEXTCLOUD_ADMIN_PASSWORD: admin
-      NEXTCLOUD_TRUSTED_DOMAINS: cloud.sysad.tech
+      #NEXTCLOUD_TRUSTED_DOMAINS: your_domain
     volumes:
       - ./nextcloud-data:/var/www/html 
     networks:
