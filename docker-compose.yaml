@@ -1,51 +1,55 @@
-version: "3.3"
-networks:               #create  network
-  nextcloud-network: 
-    driver: bridge
+version: '3.2'
 
 services:
-
-  nextcloud-database:
-    image: mysql:latest
+  db:
+    image: postgres
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: Abcd@@1234
-      MYSQL_PASSWORD: Abcd@@1234
-      MYSQL_DATABASE: web
-      MYSQL_USER: web    
     volumes:
-      - ./db-data:/var/lib/mysql
-#    ports:
-#      - "4407:3306"
-    networks:
-      - nextcloud-network
-#---------------------------------------------
-  #phpmyadmin:
-    #image: phpmyadmin/phpmyadmin:latest
-    #restart: always
-    #environment:
-      #PMA_HOST: web-database
-    #ports:
-      #- "9001:80"
-    #networks:
-      #- nextcloud-network
-#----------------------------------------------
-  nextcloud:
+      - dbnextcloud:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB_FILE=/run/secrets/postgres_db
+      - POSTGRES_USER_FILE=/run/secrets/postgres_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    secrets:
+      - postgres_db
+      - postgres_password
+      - postgres_user
+
+  app:
     image: nextcloud
     restart: always
-    container_name: nextcloud
     ports:
-      - 8282:80          
-    environment:
-      MYSQL_HOST: nextcloud-database
-      MYSQL_USER: web
-      MYSQL_PASSWORD: Abcd@@1234
-      MYSQL_DATABASE: web
-      NEXTCLOUD_ADMIN_USER: admin
-      NEXTCLOUD_ADMIN_PASSWORD: admin
-      #NEXTCLOUD_TRUSTED_DOMAINS: your_domain
+      - 8080:80
     volumes:
-      - ./nextcloud-data:/var/www/html 
-    networks:
-      - nextcloud-network
-#END-------------------------------------------
+      - nextcloud:/var/www/html
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB_FILE=/run/secrets/postgres_db
+      - POSTGRES_USER_FILE=/run/secrets/postgres_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+      - NEXTCLOUD_ADMIN_PASSWORD_FILE=/run/secrets/nextcloud_admin_password
+      - NEXTCLOUD_ADMIN_USER_FILE=/run/secrets/nextcloud_admin_user
+    depends_on:
+      - db
+    secrets:
+      - nextcloud_admin_password
+      - nextcloud_admin_user
+      - postgres_db
+      - postgres_password
+      - postgres_user
+
+volumes:
+  dbnextcloud:
+  nextcloud:
+
+secrets:
+  nextcloud_admin_password:
+    file: ./nextcloud_admin_password.txt # put admin password to this file
+  nextcloud_admin_user:
+    file: ./nextcloud_admin_user.txt # put admin username to this file
+  postgres_db:
+    file: ./postgres_db.txt # put postgresql db name to this file
+  postgres_password:
+    file: ./postgres_password.txt # put postgresql password to this file
+  postgres_user:
+    file: ./postgres_user.txt # put postgresql username to this file
