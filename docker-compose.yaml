@@ -1,0 +1,51 @@
+version: ""3.3""
+networks:               #create  network
+  nextcloud-network: 
+    driver: bridge
+
+services:
+
+  nextcloud-database:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Abcd@@1234
+      MYSQL_PASSWORD: Abcd@@1234
+      MYSQL_DATABASE: web
+      MYSQL_USER: web    
+    volumes:
+      - ./db-data:/var/lib/mysql
+#    ports:
+#      - ""4407:3306""
+    networks:
+      - nextcloud-network
+#---------------------------------------------
+  #phpmyadmin:
+    #image: phpmyadmin/phpmyadmin:latest
+    #restart: always
+    #environment:
+      #PMA_HOST: web-database
+    #ports:
+      #- ""9001:80""
+    #networks:
+      #- nextcloud-network
+#----------------------------------------------
+  nextcloud:
+    image: nextcloud
+    restart: always
+    container_name: nextcloud
+    ports:
+      - 8282:80          
+    environment:
+      MYSQL_HOST: nextcloud-database
+      MYSQL_USER: web
+      MYSQL_PASSWORD: Abcd@@1234
+      MYSQL_DATABASE: web
+      NEXTCLOUD_ADMIN_USER: admin
+      NEXTCLOUD_ADMIN_PASSWORD: admin
+      NEXTCLOUD_TRUSTED_DOMAINS: cloud.sysad.tech
+    volumes:
+      - ./nextcloud-data:/var/www/html 
+    networks:
+      - nextcloud-network
+#END-------------------------------------------
