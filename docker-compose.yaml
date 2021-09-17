@@ -1,4 +1,4 @@
-version: ""3.3""
+version: "3.3"
 networks:               #create  network
   nextcloud-network: 
     driver: bridge
@@ -16,7 +16,7 @@ services:
     volumes:
       - ./db-data:/var/lib/mysql
 #    ports:
-#      - ""4407:3306""
+#      - "4407:3306"
     networks:
       - nextcloud-network
 #---------------------------------------------
@@ -26,7 +26,7 @@ services:
     #environment:
       #PMA_HOST: web-database
     #ports:
-      #- ""9001:80""
+      #- "9001:80"
     #networks:
       #- nextcloud-network
 #----------------------------------------------
